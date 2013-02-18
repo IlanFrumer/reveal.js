@@ -182,6 +182,7 @@ var Reveal = (function(){
 		if( !dom.wrapper.querySelector( '.progress' ) && config.progress ) {
 			var progressElement = document.createElement( 'div' );
 			progressElement.classList.add( 'progress' );
+			if(config.rtl) progressElement.classList.add( 'rtl' );
 			progressElement.innerHTML = '<span></span>';
 			dom.wrapper.appendChild( progressElement );
 		}
@@ -190,6 +191,7 @@ var Reveal = (function(){
 		if( !dom.wrapper.querySelector( '.controls' ) && config.controls ) {
 			var controlsElement = document.createElement( 'aside' );
 			controlsElement.classList.add( 'controls' );
+			if(config.rtl) controlsElement.classList.add('rtl');
 			controlsElement.innerHTML = '<div class="navigate-left"></div>' +
 										'<div class="navigate-right"></div>' +
 										'<div class="navigate-up"></div>' +
@@ -551,7 +553,6 @@ var Reveal = (function(){
 	 * presentation.
 	 */
 	function layout() {
-
 		if( dom.wrapper ) {
 
 			// Available space to scale within
@@ -949,8 +950,8 @@ var Reveal = (function(){
 			indexvBefore = indexv;
 
 		// Activate and transition to the new slide
-		indexh = updateSlides( HORIZONTAL_SLIDES_SELECTOR, h === undefined ? indexh : h );
-		indexv = updateSlides( VERTICAL_SLIDES_SELECTOR, v === undefined ? indexv : v );
+		indexh = updateSlides( HORIZONTAL_SLIDES_SELECTOR, h === undefined ? indexh : h , true);
+		indexv = updateSlides( VERTICAL_SLIDES_SELECTOR, v === undefined ? indexv : v , false);
 
 		layout();
 
@@ -1062,7 +1063,7 @@ var Reveal = (function(){
 	 * might differ from the passed in index if it was out of
 	 * bounds.
 	 */
-	function updateSlides( selector, index ) {
+	function updateSlides( selector, index , isHorizontal ) {
 
 		// Select all slides and convert the NodeList result to
 		// an array
@@ -1096,18 +1097,19 @@ var Reveal = (function(){
 					element.style.display = distance > 3 ? 'none' : 'block';
 				}
 
-				slides[i].classList.remove( 'past' );
+
+				var is_rtl = config.rtl && isHorizontal;
+
 				slides[i].classList.remove( 'present' );
 				slides[i].classList.remove( 'future' );
-
+				slides[i].classList.remove( 'past' );
+			
 				if( i < index ) {
-					// Any element previous to index is given the 'past' class
-					slides[i].classList.add( 'past' );
+					slides[i].classList.add( is_rtl ? 'future' : 'past' );
 				}
 				else if( i > index ) {
-					// Any element subsequent to index is given the 'future' class
-					slides[i].classList.add( 'future' );
-				}
+					slides[i].classList.add( is_rtl ? 'past' : 'future' );
+				}	
 
 				// If this element contains vertical slides
 				if( element.querySelector( 'section' ) ) {
@@ -1238,8 +1240,8 @@ var Reveal = (function(){
 			verticalSlides = document.querySelectorAll( VERTICAL_SLIDES_SELECTOR );
 
 		return {
-			left: indexh > 0,
-			right: indexh < horizontalSlides.length - 1,
+			left: config.rtl ? indexh < horizontalSlides.length - 1 : indexh > 0,
+			right: config.rtl ? indexh > 0 : indexh < horizontalSlides.length - 1,
 			up: indexv > 0,
 			down: indexv < verticalSlides.length - 1
 		};
@@ -1450,17 +1452,24 @@ var Reveal = (function(){
 
 	}
 
-	function navigateLeft() {
-
+	function navigateLeft(rtl) {
+		// Replace buttons for right-to-left
+		if(typeof rtl === "undefined" && config.rtl) {
+			navigateRight(true);
+			return;
+		}
 		// Prioritize hiding fragments
 		if( availableRoutes().left && isOverview() || previousFragment() === false ) {
 			slide( indexh - 1 );
 		}
-
 	}
 
-	function navigateRight() {
-
+	function navigateRight(rtl) {
+		// Replace buttons for right-to-left
+		if(typeof rtl === "undefined" && config.rtl) {
+			navigateLeft(true);
+			return;
+		}
 		// Prioritize revealing fragments
 		if( availableRoutes().right && isOverview() || nextFragment() === false ) {
 			slide( indexh + 1 );
@@ -1469,7 +1478,6 @@ var Reveal = (function(){
 	}
 
 	function navigateUp() {
-
 		// Prioritize hiding fragments
 		if( availableRoutes().up && isOverview() || previousFragment() === false ) {
 			slide( indexh, indexv - 1 );
@@ -1478,7 +1486,6 @@ var Reveal = (function(){
 	}
 
 	function navigateDown() {
-
 		// Prioritize revealing fragments
 		if( availableRoutes().down && isOverview() || nextFragment() === false ) {
 			slide( indexh, indexv + 1 );

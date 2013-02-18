@@ -342,6 +342,10 @@ body {
 	bottom: 10px;
 }
 
+.reveal .controls.rtl{
+	left: 10px;
+}
+
 .reveal .controls div {
 	position: absolute;
 	opacity: 0.1;
@@ -428,7 +432,9 @@ body {
 		     -o-transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
 		        transition: width 800ms cubic-bezier(0.260, 0.860, 0.440, 0.985);
 	}
-
+	.reveal .progress.rtl span {
+		float:right;
+	}
 
 /*********************************************
  * ROLLING LINKS
