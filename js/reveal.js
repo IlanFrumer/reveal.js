@@ -697,10 +697,10 @@ var Reveal = (function(){
 			activateOverviewTimeout = setTimeout( function(){
 
 				var horizontalSlides = document.querySelectorAll( HORIZONTAL_SLIDES_SELECTOR );
+				for( var i = 0, len1 = horizontalSlides.length; i < len1; i++ ) {			
 
-				for( var i = 0, len1 = horizontalSlides.length; i < len1; i++ ) {
 					var hslide = horizontalSlides[i],
-						htransform = 'translateZ(-2500px) translate(' + ( ( i - indexh ) * 105 ) + '%, 0%)';
+						htransform = 'translateZ(-2500px) translate(' + ( ( i - indexh ) * (config.rtl ? -105 : 105) ) + '%, 0%)';
 
 					hslide.setAttribute( 'data-index-h', i );
 					hslide.style.display = 'block';
